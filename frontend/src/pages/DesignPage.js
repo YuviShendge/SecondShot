@@ -12,10 +12,10 @@ const DesignPage = () => {
   const { isLoading, error, isAuthenticated } = useAuth0();
   const navigate = useNavigate();
 
-  // Automatically navigate to the Hello page if authenticated
+  // Automatically navigate to the Home page if authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/hello");
+      navigate("/DesignPage");
     }
   }, [isAuthenticated, navigate]);
 
@@ -136,7 +136,7 @@ const DesignPage = () => {
           Get Started
         </div>
 
-        {/* Divider Lines */}
+        {/* Divider Line s */}
         <div
           style={{
             width: 442,
@@ -183,7 +183,7 @@ const DesignPage = () => {
             fontWeight: "600",
             wordWrap: "break-word",
           }}
-        >Sign in
+        >
           {error && <p>Authentication Error</p>}
           {!error && isLoading && <p>Loading...</p>}
           {!error && !isLoading && <LoginButton />}
@@ -192,7 +192,7 @@ const DesignPage = () => {
         {/* "Contact Us" area at original coordinates */}
         <div
           style={{
-            left: 1351,
+            left: 1365,
             top: 709,
             position: "absolute",
             textAlign: "center",

@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import DesignPage from "./pages/DesignPage";
+import DesignPage from "../../frontend/src/pages/DesignPage";
 import HelloPage from "./pages/SecondPage";
 
 function App() {
