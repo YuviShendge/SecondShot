@@ -17,3 +17,6 @@ logs
 *.log
 npm-debug.log*
 yarn-debug.log*
+
+#Vosk
+vosk-model-*/

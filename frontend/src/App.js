@@ -5,7 +5,9 @@ import InterviewHistory from "./pages/InterviewHistory";
 import MoreDetails from "./pages/MoreDetails";
 import Contact from "./pages/Contact";
 import Logout from "./pages/Logout";
+import InterviewPage from "./pages/InterviewPage";
 import DesignPage from "./pages/DesignPage";
+
 
 const App = () => {
   return (
@@ -30,6 +32,7 @@ const MainContent = () => {
         <Route path="/more-details" element={<MoreDetails />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/interview" element={<InterviewPage />} />
       </Routes>
     </>
   );
