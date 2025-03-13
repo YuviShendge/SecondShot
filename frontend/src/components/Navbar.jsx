@@ -24,8 +24,16 @@ const Navbar = () => {
         </Link>
       )}
       <Link to="/interview-history" style={{ margin: "0 10px" }}>Interview History</Link>
-      <Link to="/more-details" style={{ margin: "0 10px" }}>More Details</Link>
-      <Link to="/contact" style={{ margin: "0 10px" }}>Contact Us</Link>
+      <Link to="/more-details" style={{ margin: "0 10px" }}>Interview Feedback</Link>
+      {/* Contact Us Button (Opens Email Client) */}
+      <Link
+        to="https://mail.google.com/mail/?view=cm&fs=1&to=Interviewmock@gmail.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ margin: "0 10px", color: "black"}}
+      >
+        Contact Us
+      </Link>
     </nav>
   );
 };
