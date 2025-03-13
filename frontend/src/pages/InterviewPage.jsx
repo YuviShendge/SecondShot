@@ -1,44 +1,32 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Model, Recognizer } from "vosk-browser";
 import "../components/InterviewPage.css";
 
-const VOSK_MODEL_URL = "/vosk_model/vosk-model-small-en-us-0.15";
-
 const InterviewPage = () => {
-  const [text, setText] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [timer, setTimer] = useState(20);
+  const [countdownActive, setCountdownActive] = useState(false);
+  const [interviewStarted, setInterviewStarted] = useState(false);
+
   const videoRef = useRef(null);
-  const recognizerRef = useRef(null);
-  const mediaStreamRef = useRef(null);
-  const audioContextRef = useRef(null);
-  // Load Vosk model
+  const mediaRecorderRef = useRef(null);
+  const recordedChunksRef = useRef([]);
+
+  // Countdown timer before recording
   useEffect(() => {
-    const loadModel = async () => {
-      try {
-        // Use the Model constructor to load the model
-        const model = await new Model(VOSK_MODEL_URL); 
-        recognizerRef.current = new Recognizer(model, {
-          // Set options as needed
-        });
-        setLoading(false);
-      } catch (err) {
-        console.error("Failed to load Vosk model:", err);
-        setError("Failed to load speech model.");
-      }
-    };
+    let timeoutId;
+    if (countdownActive && timer > 0) {
+      timeoutId = setTimeout(() => setTimer(timer - 1), 1000);
+    }
+    if (countdownActive && timer === 0) {
+      setCountdownActive(false);
+      startListening();
+    }
+    return () => clearTimeout(timeoutId);
+  }, [timer, countdownActive]);
 
-    loadModel();
-
-    return () => {
-      if (recognizerRef.current) {
-        recognizerRef.current.free();
-      }
-    };
-  }, []);  
-
-  // Access the user's camera
+  // Enable camera
   useEffect(() => {
     const enableCamera = async () => {
       try {
@@ -61,32 +49,30 @@ const InterviewPage = () => {
     };
   }, []);
 
+  const startCountdown = () => {
+    setTimer(20);
+    setCountdownActive(true);
+  };
+  
+  const skipCountdown = () => {
+    setTimer(0);
+    setCountdownActive(false);
+    startListening();
+  };
+  
   const startListening = async () => {
-    if (!recognizerRef.current) {
-      setError("Vosk model not loaded.");
-      return;
-    }
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaStreamRef.current = stream;
-      audioContextRef.current = new AudioContext();
-      const source = audioContextRef.current.createMediaStreamSource(stream);
-      const processor = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      recordedChunksRef.current = [];
 
-      source.connect(processor);
-      processor.connect(audioContextRef.current.destination);
-
-      processor.onaudioprocess = (event) => {
-        const input = event.inputBuffer.getChannelData(0);
-        recognizerRef.current.acceptWaveform(input);
-        
-        const result = recognizerRef.current.finalResult();
-        if (result && result.text) {
-          setText((prev) => prev + " " + result.text);
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data);
         }
       };
 
+      mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (err) {
       console.error("Error accessing microphone:", err);
@@ -95,30 +81,133 @@ const InterviewPage = () => {
   };
 
   const stopListening = () => {
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop());
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, { type: "audio/webm" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `question_${currentQuestion + 1}.webm`;
+        a.click();
+      };
     }
     setIsRecording(false);
   };
 
+  const handleNextQuestion = () => {
+    stopListening();
+    if (currentQuestion < 2) {
+      setCurrentQuestion(currentQuestion + 1);
+      startCountdown();
+    }
+  };
+
+  const startInterview = () => {
+    setInterviewStarted(true);
+    startCountdown();
+  };
+
+  const questions = [
+    "Tell me about yourself and your background.",
+    "What are your strengths and weaknesses?",
+    "Where do you see yourself in five years?"
+  ];
+
   return (
     <div className="interview-container">
-      <h2>Your Screen</h2>
-      <video ref={videoRef} autoPlay playsInline style={{ width: "100%", maxWidth: "500px", margin: "20px 0" }} />
-      <button onClick={startListening} disabled={isRecording || loading}>
-        {isRecording ? "Listening..." : loading ? "Loading Model..." : "Start Recording"}
-      </button>
-      <button onClick={stopListening} disabled={!isRecording} className="stop-button">
-        Stop Recording
-      </button>
-      <button onClick={() => setText("")} disabled={!text}>
-        Clear Text
-      </button>
-      <p><strong>Live Speech Output:</strong> {text}</p>
-      {error && <p className="error-message">{error}</p>}
+      <div className="interview-layout">
+        {/* Left side - Interviewer */}
+        <div className="interviewer-section">
+          <h2>Interviewer</h2>
+          <div className="interviewer-image-container">
+            <img 
+              src="/interviewer.png" 
+              alt="Interviewer" 
+              className="interviewer-image"
+            />
+          </div>
+          
+          {interviewStarted && (
+            <div className="question-container">
+              <h3>Question {currentQuestion + 1}:</h3>
+              <p className="question-text">{questions[currentQuestion]}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Right side - User's camera */}
+        <div className="user-section">
+          <h2>Your Camera</h2>
+          <div className="video-container">
+            {error ? (
+              <p className="error-message">{error}</p>
+            ) : (
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                className="user-video"
+              />
+            )}
+          </div>
+
+          <div className="controls-container">
+            {!interviewStarted ? (
+              <button 
+                className="start-button" 
+                onClick={startInterview}
+              >
+                Start Interview
+              </button>
+            ) : (
+              <div className="interview-controls">
+                {countdownActive ? (
+                  <div className="countdown-container">
+                    <p>Recording will start in {timer} seconds...</p>
+                    <button 
+                      className="skip-button"
+                      onClick={skipCountdown}
+                    >
+                      Start Answering Now
+                    </button>
+                  </div>
+                ) : (
+                  <div className="recording-controls">
+                    <div className="record-buttons">
+                      <button
+                        className={`record-button ${isRecording ? 'disabled' : ''}`}
+                        onClick={startListening}
+                        disabled={isRecording || countdownActive || timer === 0}
+                      >
+                        Start Recording
+                      </button>
+                      <button 
+                        className={`stop-button ${!isRecording ? 'disabled' : ''}`}
+                        onClick={stopListening} 
+                        disabled={!isRecording}
+                      >
+                        Stop Recording
+                      </button>
+                    </div>
+                    <button 
+                      className={`next-button ${currentQuestion >= 2 || isRecording ? 'disabled' : ''}`}
+                      onClick={handleNextQuestion} 
+                      disabled={currentQuestion >= 2 || isRecording}
+                    >
+                      Next Question
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="status-indicator">
+            <p><strong>Status:</strong> {isRecording ? "Recording..." : "Not recording"}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

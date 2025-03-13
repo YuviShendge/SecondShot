@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import InterviewHistory from "./pages/InterviewHistory";
@@ -7,7 +12,7 @@ import Contact from "./pages/Contact";
 import Logout from "./pages/Logout";
 import InterviewPage from "./pages/InterviewPage";
 import DesignPage from "./pages/DesignPage";
-
+import PeripheralsCheckPage from "./pages/PeripheralsCheckPage";
 
 const App = () => {
   return (
@@ -20,7 +25,7 @@ const App = () => {
 const MainContent = () => {
   const location = useLocation();
   //Hide Navbar on `/` (DesignPage)
-  const showNavbar = location.pathname !== "/"; 
+  const showNavbar = location.pathname !== "/";
 
   return (
     <>
@@ -33,6 +38,7 @@ const MainContent = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/interview" element={<InterviewPage />} />
+        <Route path="/peripherals" element={<PeripheralsCheckPage />} />
       </Routes>
     </>
   );
