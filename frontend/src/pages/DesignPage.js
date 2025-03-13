@@ -204,7 +204,15 @@ const DesignPage = () => {
           }}
         >
           <LogoutButton />
-          Contact Us
+          {/* Contact Us Button (Opens Gmail in New Tab) */}
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=Interviewmock@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginLeft: "10px", color: "black", textDecoration: "none", cursor: "pointer" }}
+          >
+            Contact Us
+          </a>
         </div>
       </div>
     </div>
