@@ -5,11 +5,10 @@ import axios from "axios";
 const InterviewHistory = () => {
 return(
 <div className="interview-container">
-      <h1 className="interview-title">Interview History</h1>
-    
+      <h1 className="interview-title">Interviews by Date</h1>
       {/* Date Section */}
       <div className="interview-grid">
-        {[...Array(3)].map((_, index) => (
+        {[...Array(5)].map((_, index) => (
           <div key={index} className="interview-card">
             <h2>Date</h2>
             <p>Basic Interview</p>
@@ -18,10 +17,10 @@ return(
       </div>
       
       <hr className="divider" />
-      
+      <h1 className="interview-title">View Specific Questions</h1>
       {/* Question Section */}
       <div className="interview-grid">
-        {[...Array(3)].map((_, index) => (
+        {[...Array(6)].map((_, index) => (
           <div key={index} className="interview-card">
             <h2>Question</h2>
             <p>Enter question here</p>
