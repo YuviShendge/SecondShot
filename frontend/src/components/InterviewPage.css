@@ -1,15 +1,16 @@
 /* Interview page layout */
 .interview-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 100%;
+  background-color: rgb(93, 95, 102);
   margin: 0 auto;
-  padding: 20px;
+  padding: 2% 7%;
 }
 
 .interview-layout {
   display: flex;
   flex-direction: row;
-  gap: 20px;
+  gap: 7%;
   align-items: flex-start;
 }
 
@@ -23,16 +24,18 @@
 
 .interviewer-image-container {
   width: 100%;
-  max-width: 400px;
+  aspect-ratio: 10/9;
   margin-bottom: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   overflow: hidden;
+  background-color: white; 
 }
 
 .interviewer-image {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 
@@ -59,7 +62,7 @@
 
 .video-container {
   width: 100%;
-  max-width: 400px;
+  aspect-ratio: 10/9;
   margin-bottom: 20px;
   border-radius: 8px;
   overflow: hidden;
@@ -68,8 +71,9 @@
 
 .user-video {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
+  object-fit: cover;
+  display: fill;
 }
 
 .error-message {
@@ -199,4 +203,10 @@
   .interviewer-section, .user-section {
     width: 100%;
   }
+}
+
+h2 {
+  margin-bottom: 2%;
+  color: white;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

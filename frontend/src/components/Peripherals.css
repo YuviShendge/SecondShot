@@ -1,8 +1,8 @@
 .peripherals-check-container {
-    width: 100%;
-    max-width: 1200px;
+    max-width: 100%;
+    background-color: rgb(93, 95, 102);
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 7%;
   }
   
   .peripherals-check-container h2 {
