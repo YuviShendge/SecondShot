@@ -1,0 +1,44 @@
+.interview-container {
+    min-height: 100vh;
+    background-color: grey;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* padding: 2rem; */
+    max-width: 100%;
+  }
+  
+  .interview-title {
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 600; /* font-semibold */
+    margin-bottom: 2rem;
+  }
+  
+  .interview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 64rem;
+  }
+  
+  .interview-card {
+    background-color: lightgrey;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .interview-card h2 {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .divider {
+    width: 100%;
+    max-width: 64rem;
+    border: 1px solid #ccc;
+    margin: 2rem 0;
+  }

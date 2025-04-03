@@ -11,6 +11,9 @@ const InterviewPage = () => {
   const [countdownActive, setCountdownActive] = useState(false);
   const [interviewStarted, setInterviewStarted] = useState(false);
   const [interviewFinished, setInterviewFinished] = useState(false);
+  const [answerTime, setAnswerTime] = useState(0); // Track time spent answering
+  const [answerTimerId, setAnswerTimerId] = useState(null); // Store timer ID
+
 
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -55,13 +58,43 @@ const InterviewPage = () => {
 
     enableCamera();
 
+
+  return () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+  };
+}, []);
+  // Effect to manage the answer timer
+  useEffect(() => {
+    if (isRecording) {
+      // Start timer when recording begins
+      const timerId = setInterval(() => {
+        setAnswerTime(prev => prev + 1);
+      }, 1000);
+      setAnswerTimerId(timerId);
+    } else {
+      // Clear timer when recording stops
+      if (answerTimerId) {
+        clearInterval(answerTimerId);
+        setAnswerTimerId(null);
+      }
+    }
+
+    // Clean up on unmount
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
+      if (answerTimerId) {
+        clearInterval(answerTimerId);
       }
     };
-  }, []);
+  }, [isRecording]);
 
+  // Format the time for display (mm:ss)
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
+  };
   const startCountdown = () => {
     setTimer(20);
     setCountdownActive(true);
@@ -233,6 +266,13 @@ const InterviewPage = () => {
               </div>
             )}
           </div>
+
+          <div className="status-indicator">
+          <p className="recording-timer">
+                <strong>Recording Time:</strong> {formatTime(answerTime)}
+              </p>
+          </div>
+
         </div>
       </div>
     </div>
