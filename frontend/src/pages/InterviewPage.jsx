@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../components/InterviewPage.css";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const InterviewPage = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -14,9 +15,17 @@ const InterviewPage = () => {
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
-  const streamRef = useRef(null); // Store stream reference to prevent it from being stopped
+  const recordingsRef = useRef([]);
+  const streamRef = useRef(null);
 
-  // Countdown timer before recording
+  const navigate = useNavigate();
+
+  const questions = [
+    "Tell me about yourself and your background.",
+    "What are your strengths and weaknesses?",
+    "Where do you see yourself in five years?"
+  ];
+
   useEffect(() => {
     let timeoutId;
     if (countdownActive && timer > 0) {
@@ -29,119 +38,115 @@ const InterviewPage = () => {
     return () => clearTimeout(timeoutId);
   }, [timer, countdownActive]);
 
-// Enable camera
-useEffect(() => {
-  const enableCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.muted = true; // Add this line to mute audio playback
+  useEffect(() => {
+    const enableCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.muted = true;
+        }
+        streamRef.current = stream;
+      } catch (err) {
+        console.error("Error accessing the camera:", err);
+        setError("Camera access denied. Please allow access.");
       }
-      streamRef.current = stream; // Store stream reference
-    } catch (err) {
-      console.error("Error accessing the camera:", err);
-      setError("Camera access denied. Please allow access.");
-    }
-  };
+    };
 
-  enableCamera();
+    enableCamera();
 
-  return () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-  };
-}, []);
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
 
   const startCountdown = () => {
     setTimer(20);
     setCountdownActive(true);
   };
-  
+
   const skipCountdown = () => {
     setTimer(0);
     setCountdownActive(false);
     startListening();
   };
-  
+
   const startListening = async () => {
     try {
-      if (streamRef.current) {
-        mediaRecorderRef.current = new MediaRecorder(streamRef.current);
-        recordedChunksRef.current = [];
-
-        mediaRecorderRef.current.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            recordedChunksRef.current.push(event.data);
-          }
-        };
-
-        mediaRecorderRef.current.start();
-        setIsRecording(true);
-      } else {
-        // Fallback if stream is not available
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      if (!streamRef.current) {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-        
-        mediaRecorderRef.current = new MediaRecorder(stream);
-        recordedChunksRef.current = [];
-
-        mediaRecorderRef.current.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            recordedChunksRef.current.push(event.data);
-          }
-        };
-
-        mediaRecorderRef.current.start();
-        setIsRecording(true);
       }
+
+      mediaRecorderRef.current = new MediaRecorder(streamRef.current);
+      recordedChunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
     } catch (err) {
-      console.error("Error accessing microphone:", err);
+      console.error("Error starting recording:", err);
       setError("Microphone access denied.");
     }
   };
 
-
   const stopListening = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
       mediaRecorderRef.current.stop();
+
       mediaRecorderRef.current.onstop = async () => {
         const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
-        const fileName = `question_${currentQuestion + 1}.webm`;
+        const url = URL.createObjectURL(blob);
+
+        recordingsRef.current.push({
+          question: questions[currentQuestion],
+          blob,
+          url
+        });
+
+        const recordingsToStore = recordingsRef.current.map((rec) => ({
+          question: rec.question,
+          url: rec.url
+        }));
+
+        localStorage.setItem("interviewRecordings", JSON.stringify(recordingsToStore));
 
         const formData = new FormData();
-        formData.append("video", blob, fileName);
+        formData.append("video", blob, `question_${currentQuestion + 1}.webm`);
 
         try {
-          // Send video to backend for saving & transcription
           const response = await axios.post("http://localhost:5000/upload", formData);
-
           if (response.data.success) {
-            console.log("File saved successfully:", response.data.filePath);
-            console.log("Transcript saved:", response.data.transcriptPath);
+            console.log("File uploaded:", response.data.filePath);
           }
         } catch (err) {
-          console.error("Error uploading video:", err);
+          console.error("Upload error:", err);
         }
       };
     }
+
     setIsRecording(false);
   };
-  
 
   const handleNextQuestion = () => {
     stopListening();
-    if (currentQuestion < 2) {
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       startCountdown();
     } else {
-      // Go to Next page
       setInterviewFinished(true);
       alert("Interview completed.");
+      navigate("/more-details");
     }
   };
 
@@ -150,33 +155,23 @@ useEffect(() => {
     startCountdown();
   };
 
-  const questions = [
-    "Tell me about yourself and your background.",
-    "What are your strengths and weaknesses?",
-    "Where do you see yourself in five years?"
-  ];
-
   return (
     <div className="interview-container">
       <div className="interview-layout">
-        {/* Left side - Interviewer */}
         <div className="interviewer-section">
           <h2>Interviewer</h2>
           <div className="interviewer-image-container">
-            <img 
-              src="/interviewer.png" 
-              alt="Interviewer" 
-              className="interviewer-image"
-            />
+            <img src="/interviewer.png" alt="Interviewer" className="interviewer-image" />
           </div>
-          
+
           {interviewStarted && (
             <div className="question-container">
               <h3>Question {currentQuestion + 1}:</h3>
               <p className="question-text">{questions[currentQuestion]}</p>
             </div>
           )}
-           {interviewFinished && (
+
+          {interviewFinished && (
             <div className="interview-completed">
               <h3>Interview Completed</h3>
               <p>Thank you for participating!</p>
@@ -184,28 +179,19 @@ useEffect(() => {
           )}
         </div>
 
-        {/* Right side - User's camera */}
         <div className="user-section">
           <h2>Your Camera</h2>
           <div className="video-container">
             {error ? (
               <p className="error-message">{error}</p>
             ) : (
-              <video 
-                ref={videoRef} 
-                autoPlay 
-                playsInline 
-                className="user-video"
-              />
+              <video ref={videoRef} autoPlay playsInline className="user-video" />
             )}
           </div>
 
           <div className="controls-container">
             {!interviewStarted ? (
-              <button 
-                className="start-button" 
-                onClick={startInterview}
-              >
+              <button className="start-button" onClick={startInterview}>
                 Start Interview
               </button>
             ) : (
@@ -213,10 +199,7 @@ useEffect(() => {
                 {countdownActive ? (
                   <div className="countdown-container">
                     <p>Recording will start in {timer} seconds...</p>
-                    <button 
-                      className="skip-button"
-                      onClick={skipCountdown}
-                    >
+                    <button className="skip-button" onClick={skipCountdown}>
                       Start Answering Now
                     </button>
                   </div>
@@ -224,35 +207,31 @@ useEffect(() => {
                   <div className="recording-controls">
                     <div className="record-buttons">
                       <button
-                        className={`record-button ${isRecording ? 'disabled' : ''}`}
+                        className={`record-button ${isRecording ? "disabled" : ""}`}
                         onClick={startListening}
-                        disabled={isRecording || countdownActive || timer === 0}
+                        disabled={isRecording}
                       >
                         Start Recording
                       </button>
-                      <button 
-                        className={`stop-button ${!isRecording ? 'disabled' : ''}`}
-                        onClick={stopListening} 
+                      <button
+                        className={`stop-button ${!isRecording ? "disabled" : ""}`}
+                        onClick={stopListening}
                         disabled={!isRecording}
                       >
                         Stop Recording
                       </button>
                     </div>
-                    <button 
-                      className={`next-button ${isRecording ? 'disabled' : ''}`}
-                      onClick={handleNextQuestion} 
+                    <button
+                      className={`next-button ${isRecording ? "disabled" : ""}`}
+                      onClick={handleNextQuestion}
                       disabled={isRecording}
                     >
-                      {currentQuestion >= 2 ? 'Finish Interview' : 'Next Question'}
+                      {currentQuestion >= 2 ? "Finish Interview" : "Next Question"}
                     </button>
                   </div>
                 )}
               </div>
             )}
-          </div>
-
-          <div className="status-indicator">
-            {/* <p><strong>Status:</strong> {isRecording ? "Recording..." : "Not recording"}</p> */}
           </div>
         </div>
       </div>
