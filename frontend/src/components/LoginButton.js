@@ -5,7 +5,7 @@ const LoginButton = () => {
 
   const linkStyle = {
     textDecoration: "none",
-    color: "black", // Change as needed
+    color: "black", 
     fontSize: "inherit",
     fontFamily: "inherit",
     fontWeight: "600",
