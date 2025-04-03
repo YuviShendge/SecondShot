@@ -24,7 +24,6 @@ const Navbar = () => {
         </Link>
       )}
       <Link to="/interview-history" style={{ margin: "0 10px" }}>Interview History</Link>
-      <Link to="/more-details" style={{ margin: "0 10px" }}>Interview Feedback</Link>
       {/* Contact Us Button (Opens Email Client) */}
       <Link
         to="https://mail.google.com/mail/?view=cm&fs=1&to=Interviewmock@gmail.com"

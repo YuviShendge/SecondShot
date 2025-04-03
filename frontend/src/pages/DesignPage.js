@@ -15,7 +15,7 @@ const DesignPage = () => {
   // Automatically navigate to the Home page if authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/DesignPage");
+      navigate("/peripherals");
     }
   }, [isAuthenticated, navigate]);
 
