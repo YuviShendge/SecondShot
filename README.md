@@ -1,7 +1,7 @@
 # SecondShot
 
 ## **Project Overview**
-This is a full-stack MERN Mock AI Interview tool
+This is a full-stack MERN Mock Interview tool
 ---
 
 ## **🛠 Prerequisites**
