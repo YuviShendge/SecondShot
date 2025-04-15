@@ -13,6 +13,8 @@ import Logout from "./pages/Logout";
 import InterviewPage from "./pages/InterviewPage";
 import DesignPage from "./pages/DesignPage";
 import PeripheralsCheckPage from "./pages/PeripheralsCheckPage";
+import FeedbackPage from "./pages/FeedbackPage";
+import VideoUpload from "./pages/Video-Upload";
 
 const App = () => {
   return (
@@ -39,6 +41,9 @@ const MainContent = () => {
         <Route path="/logout" element={<Logout />} />
         <Route path="/interview" element={<InterviewPage />} />
         <Route path="/peripherals" element={<PeripheralsCheckPage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
+        <Route path="/videos" element={<VideoUpload />} />
+
       </Routes>
     </>
   );
