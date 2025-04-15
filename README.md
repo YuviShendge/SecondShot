@@ -21,7 +21,7 @@ cd SWEGroup2
 ## ** 2. Set Up Backend**
 cd backend
 npm install
-npm run dev
+npm run start
 
 ## ** 3. Set Up Frontend**
 cd ../frontend
