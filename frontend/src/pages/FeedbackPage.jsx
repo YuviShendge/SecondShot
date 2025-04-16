@@ -16,8 +16,6 @@ const FeedbackPage = () => {
       setResponse("Error submitting feedback");
     }
   };
-  
-  
 
   return (
     <div className="p-4 max-w-md mx-auto">

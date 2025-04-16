@@ -65,7 +65,10 @@ const DesignPage = () => {
         />
 
         {/* SVG Logo */}
-        <div data-svg-wrapper style={{ left: 325, top: 71, position: "absolute" }}>
+        <div
+          data-svg-wrapper
+          style={{ left: 325, top: 71, position: "absolute" }}
+        >
           <svg
             width="294"
             height="416"
@@ -98,11 +101,13 @@ const DesignPage = () => {
         >
           Instructions:
           <br />
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sit amet mauris porttitor,
-          pretium quam ut, blandit nunc. Aenean ac tincidunt leo. Vivamus ultrices aliquet tristique. Nam
-          vitae purus et augue scelerisque fringilla. Nam elit leo, tempus sed interdum nec, ultrices eget
-          nibh. Morbi placerat, lacus quis viverra hendrerit, velit mauris pellentesque ex, vel finibus dolor
-          ex sit amet est. Morbi non tellus dui. Integer quis auctor justo, feugiat suscipit dolor. ac
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sit
+          amet mauris porttitor, pretium quam ut, blandit nunc. Aenean ac
+          tincidunt leo. Vivamus ultrices aliquet tristique. Nam vitae purus et
+          augue scelerisque fringilla. Nam elit leo, tempus sed interdum nec,
+          ultrices eget nibh. Morbi placerat, lacus quis viverra hendrerit,
+          velit mauris pellentesque ex, vel finibus dolor ex sit amet est. Morbi
+          non tellus dui. Integer quis auctor justo, feugiat suscipit dolor. ac
           tristique augue nisl ut sapien. Nullam ac felis justo.
         </div>
 
@@ -209,7 +214,12 @@ const DesignPage = () => {
             href="https://mail.google.com/mail/?view=cm&fs=1&to=Interviewmock@gmail.com"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ marginLeft: "10px", color: "black", textDecoration: "none", cursor: "pointer" }}
+            style={{
+              marginLeft: "10px",
+              color: "black",
+              textDecoration: "none",
+              cursor: "pointer",
+            }}
           >
             Contact Us
           </a>
