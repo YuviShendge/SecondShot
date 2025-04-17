@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../components/MoreDetails.css";
 import axios from "axios";
 
@@ -10,6 +11,8 @@ const MoreDetails = () => {
   const [recordings, setRecordings] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [includeVideoLinks, setIncludeVideoLinks] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem("selfEvaluation", selfEvaluation);
@@ -79,6 +82,7 @@ const MoreDetails = () => {
     <div className="feedback-container">
       <h1 className="feedback-title">Feedback</h1>
       <div className="panels-container">
+        {/* Interview Playback Panel */}
         <div className="feedback-panel playback-panel">
           <h3 className="panel-title">Interview Playback</h3>
           {recordings.length > 0 ? (
@@ -114,7 +118,7 @@ const MoreDetails = () => {
           )}
         </div>
 
-        {/* Self Evaluation */}
+        {/* Self Evaluation Panel */}
         <div className="feedback-panel evaluation-panel">
           <h3>Self Evaluation</h3>
           <textarea
@@ -134,9 +138,12 @@ const MoreDetails = () => {
               </span>
             ))}
           </div>
+          <button onClick={handleSendEval} className="send-button">
+            Save Evaluation
+          </button>
         </div>
 
-        {/* Mentor Email */}
+        {/* Mentor Email Panel */}
         <div className="feedback-panel mentor-panel">
           <h3 className="panel-title">Send to Mentor</h3>
           <input
@@ -152,13 +159,31 @@ const MoreDetails = () => {
             onChange={(e) => setMessage(e.target.value)}
             className="message-textarea"
           />
-          <button
-            onClick={handleSend}
-            className="send-button"
-          >
+          <button onClick={handleSend} className="send-button">
             Send via Gmail
           </button>
+          <div style={{ marginTop: "10px", fontSize: "14px" }}>
+            <input
+              type="checkbox"
+              id="includeVideoLinks"
+              checked={includeVideoLinks}
+              onChange={() => setIncludeVideoLinks(!includeVideoLinks)}
+            />
+            <label htmlFor="includeVideoLinks" style={{ marginLeft: "8px" }}>
+              Include video links in email
+            </label>
+          </div>
         </div>
+      </div>
+
+      {/* Interview History Button */}
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "30px" }}>
+        <button
+          className="history-button"
+          onClick={() => navigate("/interview-history")}
+        >
+          Go to Interview History
+        </button>
       </div>
     </div>
   );
