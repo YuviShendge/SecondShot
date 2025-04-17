@@ -12,9 +12,6 @@ const Video = require("./models/Video");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Import Video metadata model
-const Video = require("./models/Video");
-
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -153,37 +150,6 @@ app.get("/video/:filename", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-// Route to fetch video by id
-// app.get("/video/:id", async (req, res) => {
-//   if (!gfs) {
-//     console.error("GridFS not initialized");
-//     return res.status(500).json({ error: "GridFS not initialized" });
-//   }
-
-//   try {
-//     const videoRecord = await Video.findById(req.params.id);
-//     if (!videoRecord) {
-//       console.error("Video record not found");
-//       return res.status(404).json({ error: "Video record not found" });
-//     }
-
-//     const fileId = videoRecord.fileId;
-//     const file = await gfs.find({ _id: fileId }).toArray();
-
-//     if (!file || file.length === 0) {
-//       console.error("Video not found in GridFS");
-//       return res.status(404).json({ error: "Video not found" });
-//     }
-
-//     console.log("Video found, streaming...");
-//     const readStream = gfs.openDownloadStream(fileId);
-//     res.setHeader("Content-Type", file[0].contentType); // Dynamic content type
-//     readStream.pipe(res);
-//   } catch (err) {
-//     console.error("Server error:", err);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
 // Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

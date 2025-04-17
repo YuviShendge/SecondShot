@@ -72,6 +72,7 @@ body {
 .interview-card h2, .carousel-container h2 {
   font-weight: bold;
   margin-bottom: 0.5rem;
+  padding: 0 5px;
 }
 
 .interview-card ul {

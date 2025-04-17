@@ -9,6 +9,8 @@ const InterviewHistory = () => {
     const fetchInterviews = async () => {
       try {
         const response = await axios.get("http://localhost:5000/interviews");
+        console.log("Fetched Interviews: ", response.data); // Debug log for fetched data
+
         setInterviews(response.data);
       } catch (err) {
         console.error("Error fetching interviews:", err);
