@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 const MoreDetails = () => {
   const [selfEvaluation, setSelfEvaluation] = useState(localStorage.getItem("selfEvaluation") || "");
@@ -46,6 +47,18 @@ const MoreDetails = () => {
     if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
   };
 
+  const handleSendEval = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/feedback", {
+        message: selfEvaluation,
+      });
+      alert(res.data.message || "Evaluation saved successfully!");
+    } catch (err) {
+      console.error("Error saving evaluation:", err.response ? err.response.data : err);
+      alert("Error saving evaluation. Please try again.");
+    }
+  };
+  
   return (
     <div style={{ width: "95vw", height: "100vh", position: "relative", background: "white", overflow: "hidden" }}>
       <div style={{ width: "600px", left: "50%", transform: "translateX(-50%)", top: "0px", position: "absolute", textAlign: "center", color: "black", fontSize: "48px", fontFamily: "Inter", fontWeight: "500" }}>
@@ -71,7 +84,15 @@ const MoreDetails = () => {
               ★
             </span>
           ))}
-        </div>
+     <div style={{ display: "flex", justifyContent: "center", marginTop: "30px" }}>
+      <button
+        onClick={handleSendEval}
+        style={{ width: "90%", padding: "10px", background: "black", color: "white", fontSize: "18px", border: "none", cursor: "pointer" }}
+      >
+        Save Evaluation
+      </button>
+      </div>
+      </div>
       </div>
 
       {/* Mentor Email */}
