@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const MoreDetails = () => {
   const [selfEvaluation, setSelfEvaluation] = useState(localStorage.getItem("selfEvaluation") || "");
@@ -75,9 +76,58 @@ const MoreDetails = () => {
   };
 
   return (
-    <div style={{ width: "95vw", height: "100vh", position: "relative", background: "white", overflow: "hidden" }}>
-      <div style={{ width: "600px", left: "50%", transform: "translateX(-50%)", top: "0px", position: "absolute", textAlign: "center", color: "black", fontSize: "48px", fontFamily: "Inter", fontWeight: "500" }}>
+    <div style={{ width: "100vw", height: "100vh", position: "relative", background: "white", overflowY: "auto", paddingBottom: "80px" }}>
+      <div style={{ width: "600px", left: "48%", transform: "translateX(-50%)", top: "0px", position: "absolute", textAlign: "center", color: "black", fontSize: "48px", fontFamily: "Inter", fontWeight: "500" }}>
         Question Analysis
+      </div>
+
+      {/* Interview Playback */}
+      <div style={{
+        width: "380px",
+        height: "450px",
+        left: "120px",
+        top: "130px",
+        position: "absolute",
+        background: "#D9D9D9",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        padding: "20px",
+        boxSizing: "border-box"
+      }}>
+        <h3 style={{ fontSize: "24px", marginBottom: "10px" }}>Interview Playback</h3>
+        {recordings.length > 0 ? (
+          <>
+            <p style={{ fontWeight: "bold", textAlign: "center", fontSize: "16px", marginBottom: "10px" }}>
+              Question {currentIndex + 1}: {recordings[currentIndex].question}
+            </p>
+            <video
+              key={recordings[currentIndex].url}
+              src={recordings[currentIndex].url}
+              controls
+              style={{ width: "100%", height: "220px", objectFit: "cover", marginBottom: "10px" }}
+            />
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+              <button
+                onClick={handlePrev}
+                disabled={currentIndex === 0}
+                style={{ padding: "6px 12px", fontSize: "14px", cursor: "pointer" }}
+              >
+                ◀ Prev
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={currentIndex === recordings.length - 1}
+                style={{ padding: "6px 12px", fontSize: "14px", cursor: "pointer" }}
+              >
+                Next ▶
+              </button>
+            </div>
+          </>
+        ) : (
+          <p>No recordings available.</p>
+        )}
       </div>
 
       {/* Self Evaluation */}
@@ -145,53 +195,28 @@ const MoreDetails = () => {
         </div>
       </div>
 
-      {/* Interview Playback */}
+      {/* Green Button Positioned Below All Three Boxes */}
       <div style={{
-        width: "380px",
-        height: "450px",
-        left: "120px",
-        top: "130px",
         position: "absolute",
-        background: "#D9D9D9",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        padding: "20px",
-        boxSizing: "border-box"
+        top: "620px",
+        left: "48%",
+        transform: "translateX(-50%)",
+        marginTop: "30px"
       }}>
-        <h3 style={{ fontSize: "24px", marginBottom: "10px" }}>Interview Playback</h3>
-        {recordings.length > 0 ? (
-          <>
-            <p style={{ fontWeight: "bold", textAlign: "center", fontSize: "16px", marginBottom: "10px" }}>
-              Question {currentIndex + 1}: {recordings[currentIndex].question}
-            </p>
-            <video
-              key={recordings[currentIndex].url}
-              src={recordings[currentIndex].url}
-              controls
-              style={{ width: "100%", height: "220px", objectFit: "cover", marginBottom: "10px" }}
-            />
-            <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-              <button
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
-                style={{ padding: "6px 12px", fontSize: "14px", cursor: "pointer" }}
-              >
-                ◀ Prev
-              </button>
-              <button
-                onClick={handleNext}
-                disabled={currentIndex === recordings.length - 1}
-                style={{ padding: "6px 12px", fontSize: "14px", cursor: "pointer" }}
-              >
-                Next ▶
-              </button>
-            </div>
-          </>
-        ) : (
-          <p>No recordings available.</p>
-        )}
+        <Link
+          to="/interview-history"
+          style={{
+            backgroundColor: "#4CAF50",
+            color: "white",
+            padding: "12px 24px",
+            fontSize: "24px",
+            fontWeight: "bold",
+            textDecoration: "none",
+            borderRadius: "8px",
+          }}
+        >
+          Go to Interview History
+        </Link>
       </div>
     </div>
   );
