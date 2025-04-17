@@ -136,27 +136,28 @@ const InterviewPage = () => {
       mediaRecorderRef.current.onstop = async () => {
         const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
         const url = URL.createObjectURL(blob);
-
+  
         recordingsRef.current.push({
           question: questions[currentQuestion],
           blob,
           url
         });
-
+  
         const recordingsToStore = recordingsRef.current.map((rec) => ({
           question: rec.question,
           url: rec.url
         }));
-
+  
         localStorage.setItem("interviewRecordings", JSON.stringify(recordingsToStore));
-
+  
         const formData = new FormData();
         formData.append("video", blob, `question_${currentQuestion + 1}.webm`);
-
+        formData.append("question", questions[currentQuestion]);  // Add question to the form data
+  
         try {
           const response = await axios.post("http://localhost:5000/upload-video", formData);
           if (response.data.success) {
-            console.log("File uploaded:", response.data.filePath);
+            console.log("File uploaded:", response.data);
           }
         } catch (err) {
           console.error("Upload error:", err);

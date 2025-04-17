@@ -1,47 +1,105 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
 .interview-container {
-    min-height: 100vh;
-    color: black;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* padding: 2rem; */
-    max-width: 100%;
-  }
-  
-  .interview-title {
-    font-size: 1.875rem; /* text-3xl */
-    font-weight: 600; /* font-semibold */
-    margin-bottom: 2rem;
-  }
-  
+  min-height: 100vh;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  padding: 2rem;
+}
+
+.interview-container h1 {
+  color: white;
+}
+
+.interview-title {
+  font-size: 1.875rem; /* text-3xl */
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.interview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.carousel-container, .interview-card {
+  background-color: lightgrey;
+  padding: 1.5rem 0;
+  border-radius: 1rem;
+  border: 2px solid grey;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-container:hover, .interview-card:hover {
+  background-color: rgb(180, 180, 180);
+  transition: 0.3s;
+}
+
+.carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.carousel-arrow {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.carousel-arrow.left {
+  margin-right: 1%;
+}
+
+.carousel-arrow.right {
+  margin-left: 1%;
+}
+
+.interview-card h2, .carousel-container h2 {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.interview-card ul {
+  list-style-type: none; 
+  padding: 0;
+  margin: 0;
+}
+
+.interview-card ul li {
+  margin: 0.5rem 0;
+}
+
+.divider {
+  width: 100%;
+  border: 1px solid grey;
+  margin: 2rem 0;
+}
+
+.interview-card video, .carousel-container video {
+  margin-bottom: 0.5rem;
+}
+
+.interview-card p, .carousel-container p {
+  text-align: center;
+}
+
+@media (max-width: 768px) {
   .interview-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    width: 100%;
-    /* max-width: 64rem; */
+    grid-template-columns: 1fr;
   }
-  
-  .interview-card {
-    background-color: lightgrey;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    border: 2px solid grey;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  .interview-card:hover {
-    background-color: rgb(180, 180, 180);
-    transition: .3s;
-  }
-  .interview-card h2 {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
-  
-  .divider {
-    width: 100%;
-    /* max-width: 64rem; */
-    border: 1px solid grey;
-    margin: 2rem 0;
-  }
+}

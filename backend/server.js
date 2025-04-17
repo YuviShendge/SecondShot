@@ -1,13 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { Server } = require("ws");
-const fs = require("fs");
-const axios = require("axios");
 const multer = require("multer");
 const path = require("path");
 require("dotenv").config();
 const { GridFsStorage } = require("multer-gridfs-storage");
+
+// Models
+const Video = require("./models/Video");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,7 +27,11 @@ app.use(
 );
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -36,51 +40,47 @@ const conn = mongoose.connection;
 let gfs;
 
 conn.once("open", () => {
-  console.log("MongoDB connection open ✅");
+  console.log("MongoDB connection open ✅ in database: " + conn.name);
   gfs = new mongoose.mongo.GridFSBucket(conn.db, {
     bucketName: "videos",
   });
 });
 
-
 // Feedback Schema
-const feedbackSchema = new mongoose.Schema({
-  message: { type: String, required: true },
-}, { collection: "feedback", timestamps: true });
+const feedbackSchema = new mongoose.Schema(
+  {
+    message: { type: String, required: true },
+  },
+  { collection: "feedback", timestamps: true }
+);
 
 const Feedback = mongoose.model("Feedback", feedbackSchema);
 
-// 📌 Route to Submit Feedback
+// Route to Submit Feedback
 app.post("/feedback", async (req, res) => {
   try {
-    console.log("Received feedback request with body:", req.body);
-
     const { message } = req.body;
     if (!message) {
-      console.log("❌ Error: No message provided");
-      return res.status(400).json({ success: false, error: "Message is required" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Message is required" });
     }
-
     const newFeedback = new Feedback({ message });
     await newFeedback.save();
-
-    console.log("✅ Feedback saved successfully:", newFeedback);
     res.status(201).json({ success: true, message: "Feedback submitted!" });
   } catch (err) {
-    console.error("❌ Error saving feedback:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // Set up the GridFS storage
-// GridFS Storage for Video Uploads
 const storage = new GridFsStorage({
   url: process.env.MONGO_URI,
   file: (req, file) => {
     return new Promise((resolve, reject) => {
       const fileInfo = {
         filename: `${Date.now()}-${file.originalname}`,
-        bucketName: "videos", // Specify the bucket name for videos
+        bucketName: "videos",
       };
       resolve(fileInfo);
     });
@@ -89,77 +89,100 @@ const storage = new GridFsStorage({
 
 const upload = multer({ storage });
 
-// Route to Upload Video
-app.post("/upload-video", upload.single("video"), (req, res) => {
-  if (!req.file) {
-    console.error("❌ No file received!");
-    return res.status(400).json({ success: false, error: "No file received" });
+// Route to fetch all interviews
+app.get("/interviews", async (req, res) => {
+  try {
+    const interviews = await Video.find().sort({ uploadDate: -1 });
+    res.json(interviews);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
-
-  console.log("✅ Video uploaded successfully:", req.file);
-  res.json({
-    success: true,
-    fileId: req.file.id, // Return the file ID after upload
-    filename: req.file.filename, // Return the filename for later use
-  });
 });
 
-
-// 📌 Route to Upload Videos
-app.post("/upload-video", upload.single("video"), (req, res) => {
+// Route to upload video
+app.post("/upload-video", upload.single("video"), async (req, res) => {
   if (!req.file) {
-    console.error("❌ No file received!");
     return res.status(400).json({ success: false, error: "No file received" });
   }
 
-  console.log("✅ Video uploaded successfully:", req.file);
-  res.json({
-    success: true,
-    fileId: req.file.id,
+  const question = req.body.question;
+  const contentType = req.file.mimetype;
+  const gridFsFileId = req.file.id; // Capture the GridFS file ID
+
+  const videoRecord = {
     filename: req.file.filename,
-  });
-});
+    question: question,
+    uploadDate: new Date(),
+    contentType,
+    fileId: gridFsFileId, // Store the GridFS file ID
+  };
 
-// Route to Fetch Video by ID
-// Route to Fetch Video by ID
-app.get("/video/:id", async (req, res) => {
+  try {
+    const record = await Video.create(videoRecord);
+    res.json({ success: true, record: record });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+// Fetch videos by name
+app.get("/video/:filename", async (req, res) => {
   if (!gfs) {
+    console.error("GridFS not initialized");
     return res.status(500).json({ error: "GridFS not initialized" });
   }
 
   try {
-    // Make sure to use the correct ObjectId
-    const fileId = new mongoose.Types.ObjectId(req.params.id);
-    
-    const file = await gfs.files.findOne({ _id: fileId });
-    if (!file) {
-      return res.status(404).json({ error: "Video not found" });
+    const filename = req.params.filename;
+    // Log the filename being requested for debugging
+    console.log(`Attempting to find video with filename: ${filename}`);
+
+    const files = await gfs.find({ filename }).toArray();
+
+    if (!files || files.length === 0) {
+      console.error(`Video not found in GridFS for filename: ${filename}`);
+      return res.status(404).json({ error: "Video not found in GridFS" });
     }
 
-    const readStream = gfs.createReadStream(file._id);
-
-    // Set the content type for video (use the correct MIME type for your video)
-    res.setHeader("Content-Type", file.contentType);
-    readStream.pipe(res); // Pipe the video stream to the response
+    console.log(`Video found for filename: ${filename}, streaming...`);
+    const readStream = gfs.openDownloadStreamByName(filename);
+    res.setHeader("Content-Type", files[0].contentType); // Dynamic content type
+    readStream.pipe(res);
   } catch (err) {
-    console.error("❌ Error fetching video:", err);
+    console.error("Server error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
+// Route to fetch video by id
+// app.get("/video/:id", async (req, res) => {
+//   if (!gfs) {
+//     console.error("GridFS not initialized");
+//     return res.status(500).json({ error: "GridFS not initialized" });
+//   }
 
-app.get("/video/:filename", async (req, res) => {
-  try {
-    const file = await gfs.find({ filename: req.params.filename }).toArray();
-    if (!file || file.length === 0) {
-      return res.status(404).json({ error: "Video not found" });
-    }
-    gfs.openDownloadStreamByName(req.params.filename).pipe(res);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+//   try {
+//     const videoRecord = await Video.findById(req.params.id);
+//     if (!videoRecord) {
+//       console.error("Video record not found");
+//       return res.status(404).json({ error: "Video record not found" });
+//     }
 
+//     const fileId = videoRecord.fileId;
+//     const file = await gfs.find({ _id: fileId }).toArray();
 
+//     if (!file || file.length === 0) {
+//       console.error("Video not found in GridFS");
+//       return res.status(404).json({ error: "Video not found" });
+//     }
+
+//     console.log("Video found, streaming...");
+//     const readStream = gfs.openDownloadStream(fileId);
+//     res.setHeader("Content-Type", file[0].contentType); // Dynamic content type
+//     readStream.pipe(res);
+//   } catch (err) {
+//     console.error("Server error:", err);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
 // Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
