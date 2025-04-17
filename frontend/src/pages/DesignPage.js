@@ -96,15 +96,20 @@ const DesignPage = () => {
             wordWrap: "break-word",
           }}
         >
-          Instructions:
-          <br />
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sit amet mauris porttitor,
-          pretium quam ut, blandit nunc. Aenean ac tincidunt leo. Vivamus ultrices aliquet tristique. Nam
-          vitae purus et augue scelerisque fringilla. Nam elit leo, tempus sed interdum nec, ultrices eget
-          nibh. Morbi placerat, lacus quis viverra hendrerit, velit mauris pellentesque ex, vel finibus dolor
-          ex sit amet est. Morbi non tellus dui. Integer quis auctor justo, feugiat suscipit dolor. ac
-          tristique augue nisl ut sapien. Nullam ac felis justo.
-        </div>
+          <p><strong>Instructions</strong></p>
+
+          <p>Log in or create an account to get started.</p>
+
+          <p>Check your camera and microphone on the peripherals page.</p>
+
+          <p>Select your questions or let us pick them for you.</p>
+
+          <p>Start the interview — you'll answer 3 questions one at a time.<br />
+          You get 20 seconds to prepare before recording each answer.</p>
+
+          <p>After finishing, review your responses, add a self-evaluation,<br />
+          and email it to a mentor for feedback.</p>
+          </div>
 
         {/* "Get Started" Button */}
         <div
