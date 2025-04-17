@@ -92,9 +92,9 @@ const DesignPage = () => {
             position: "absolute",
             textAlign: "center",
             color: "black",
-            fontSize: 26,
-            fontFamily: "Inter",
-            fontWeight: "600",
+            fontSize: 25,
+            fontFamily: "Arial",
+            fontWeight: "400",
             wordWrap: "break-word",
           }}
         >
@@ -143,7 +143,7 @@ const DesignPage = () => {
               textAlign: "center",
               color: "black",
               fontSize: 40,
-              fontFamily: "Inter",
+              fontFamily: "Arial",
               fontWeight: "600",
             }}
           >
@@ -194,7 +194,7 @@ const DesignPage = () => {
             textAlign: "center",
             color: "black",
             fontSize: 32,
-            fontFamily: "Inter",
+            fontFamily: "Arial",
             fontWeight: "600",
             wordWrap: "break-word",
           }}
@@ -213,7 +213,7 @@ const DesignPage = () => {
             textAlign: "center",
             color: "black",
             fontSize: 32,
-            fontFamily: "Inter",
+            fontFamily: "Arial",
             fontWeight: "600",
             wordWrap: "break-word",
           }}
