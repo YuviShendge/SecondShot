@@ -25,7 +25,30 @@ const PeripheralsCheckPage = () => {
   const animationFrameRef = useRef(null);
   const micStreamRef = useRef(null);
   const videoStreamRef = useRef(null);
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
 
+  const handleQuestionSelect = (question) => {
+    setSelectedQuestions((prev) =>
+      prev.includes(question)
+        ? prev.filter((q) => q !== question)
+        : [...prev, question]
+    );
+  };
+  
+  const questions = [
+    "Tell me about yourself.",
+    "What is your greatest accomplishment?",
+    "Tell me about a time you had to learn something quickly.",
+    "Tell me about a time you made a mistake, how did you handle it?",
+    "What is your favorite class you have taken related to your major?",
+    "What are your strengths?",
+    "What are your weaknesses?",
+    "Describe a time you failed and what you learned.",
+    "Describe a time where you were under stress or pressure",
+    "Describe your favorite project on your resume.",
+    "What makes you a good fit for this position?",
+    "What do you hope to gain from this role?"
+  ];
   useEffect(() => {
     // Fetch available devices
     navigator.mediaDevices.enumerateDevices().then((devices) => {
@@ -253,12 +276,12 @@ const PeripheralsCheckPage = () => {
     stopVideoStream();
     
     // Navigate to interview page
-    navigate("/interview");
+    navigate("/interview", { state: { selectedQuestions } });
   };
   
   return (
     <div className="peripherals-check-container">
-      <h2>Peripherals Check</h2>
+      <h2>Pheripherals Check and Question Selection</h2>
       <div className="check-sections">
         {/* Camera Section */}
         <div className="test-section camera-section">
@@ -324,21 +347,36 @@ const PeripheralsCheckPage = () => {
                     <option key={speaker.deviceId} value={speaker.deviceId}>{speaker.label || "Speaker " + (speakers.indexOf(speaker) + 1)}</option>
                   ))}
                 </select>
-                <p>{"Play this audio to test your speakers"}</p>
-                <button onClick={testSpeakers}>Play Audio</button>
+                <button onClick={testSpeakers}>Test Audio</button>
               </>
             )}
           </div>
         </div>
-      </div>
-      
-      {/* Navigation Button */}
+        <div className="question-section">
+        <h3>Select Interview Questions</h3>
+        <ul className="question-list">
+        {questions.map((question, index) => (
+          <li
+            key={index}
+            onClick={() => handleQuestionSelect(question)}
+            className={`question-item ${selectedQuestions.includes(question) ? "selected" : ""}`}
+          >
+            <span>{question}</span>
+            {selectedQuestions.includes(question) && <span className="checkmark">✔</span>}
+          </li>
+        ))}
+        </ul>
+      </div>    
+      </div>  
       <div className="navigation-section">
         <button 
-          className="proceed-button"
+          className={`proceed-button ${selectedQuestions.length === 0 ? "disabled" : ""}`}
           onClick={proceedToInterview}
+          disabled={selectedQuestions.length === 0}
         >
-          My peripherals are correct, move onto interview
+          {selectedQuestions.length === 0 ? 
+            "Please select at least one question" : 
+            "Proceed to interview"}
         </button>
       </div>
     </div>

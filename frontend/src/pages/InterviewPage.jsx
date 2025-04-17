@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../components/InterviewPage.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const InterviewPage = () => {
@@ -11,9 +11,10 @@ const InterviewPage = () => {
   const [timer, setTimer] = useState(20);
   const [countdownActive, setCountdownActive] = useState(false);
   const [interviewStarted, setInterviewStarted] = useState(false);
-  const [interviewFinished, setInterviewFinished] = useState(false);
+  const [interviewFinished, setInterviewFinished] = useState(false); 
   const [answerTime, setAnswerTime] = useState(0);
   const [answerTimerId, setAnswerTimerId] = useState(null);
+  const [hasRecorded, setHasRecorded] = useState(false);
 
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -22,14 +23,11 @@ const InterviewPage = () => {
   const streamRef = useRef(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const questions = location.state?.selectedQuestions || [];
+  const isLastQuestion = currentQuestion === questions.length - 1;
   const { user } = useAuth0();
-
-  const questions = [
-    "Tell me about yourself and your background.",
-    "What are your strengths and weaknesses?",
-    "Where do you see yourself in five years?",
-  ];
-
+  
   useEffect(() => {
     let timeoutId;
     if (countdownActive && timer > 0) {
@@ -61,7 +59,7 @@ const InterviewPage = () => {
 
     return () => {
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
   }, []);
@@ -78,7 +76,6 @@ const InterviewPage = () => {
         setAnswerTimerId(null);
       }
     }
-
     return () => {
       if (answerTimerId) clearInterval(answerTimerId);
     };
@@ -131,44 +128,48 @@ const InterviewPage = () => {
   const stopListening = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
       mediaRecorderRef.current.stop();
-
       mediaRecorderRef.current.onstop = async () => {
         const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
         const url = URL.createObjectURL(blob);
-
-        // Prepare upload
+  
+        recordingsRef.current.push({
+          question: questions[currentQuestion],
+          blob,
+          url
+        });
+  
         const formData = new FormData();
         formData.append("video", blob, `question_${currentQuestion + 1}.webm`);
         formData.append("question", questions[currentQuestion]);
         formData.append("userId", user?.sub || "anonymous");
 
         try {
-          const res = await axios.post("http://localhost:5000/upload-video", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-
-          recordingsRef.current.push({
+          const response = await axios.post("http://localhost:5000/upload-video", formData);
+          if (response.data.success) {
+            console.log("File uploaded:", response.data);
+            recordingsRef.current.push({
             question: questions[currentQuestion],
-            url,
             blob,
-            fileId: res.data.fileId, // ✅ store fileId here
+            url,
+            fileId: response.data.fileId,  // Include fileId from response
           });
 
-          // Update localStorage
           const recordingsToStore = recordingsRef.current.map((rec) => ({
             question: rec.question,
             url: rec.url,
             fileId: rec.fileId,
           }));
-          localStorage.setItem("interviewRecordings", JSON.stringify(recordingsToStore));
-        } catch (err) {
-          console.error("Upload error:", err);
-          alert("Upload failed. Please try again.");
-        }
-      };
-    }
 
-    setIsRecording(false);
+          localStorage.setItem("interviewRecordings", JSON.stringify(recordingsToStore));
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert("Upload failed. Please try again.");
+      }
+    };
+  }
+  setIsRecording(false);
+  setHasRecorded(true);
   };
 
   const handleNextQuestion = () => {
@@ -191,88 +192,67 @@ const InterviewPage = () => {
 
   return (
     <div className="interview-container">
-      <div className="interview-layout">
-        <div className="interviewer-section">
-          <h2>Interviewer</h2>
-          <div className="interviewer-image-container">
-            <img src="/interviewer.png" alt="Interviewer" className="interviewer-image" />
-          </div>
-
+      <div className="interview-wrapper">
+        {/* Video container with question overlay */}
+        <div className="video-wrapper">
           {interviewStarted && (
-            <div className="question-container">
+            <div className="question-overlay">
               <h3>Question {currentQuestion + 1}:</h3>
               <p className="question-text">{questions[currentQuestion]}</p>
             </div>
           )}
-
-          {interviewFinished && (
-            <div className="interview-completed">
-              <h3>Interview Completed</h3>
-              <p>Thank you for participating!</p>
-            </div>
-          )}
-        </div>
-
-        <div className="user-section">
-          <h2>Your Camera</h2>
+          
           <div className="video-container">
             {error ? (
-              <p className="error-message">{error}</p>
+              <div className="error-message">{error}</div>
             ) : (
               <video ref={videoRef} autoPlay playsInline className="user-video" />
             )}
           </div>
 
-          <div className="controls-container">
-            {!interviewStarted ? (
-              <button className="start-button" onClick={startInterview}>
-                Start Interview
-              </button>
-            ) : (
-              <div className="interview-controls">
-                {countdownActive ? (
-                  <div className="countdown-container">
-                    <p>Recording will start in {timer} seconds...</p>
-                    <button className="skip-button" onClick={skipCountdown}>
-                      Start Answering Now
+          {/* Recording timer overlay */}
+          {isRecording && (
+            <div className="recording-indicator">
+              <div className="recording-dot"></div>
+              <span>Recording: {formatTime(answerTime)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Controls below the video */}
+        <div className="controls-container">
+          {!interviewStarted ? (
+            <button className="start-button" onClick={startInterview}>
+              Start Interview
+            </button>
+          ) : !interviewFinished && (
+            <>
+              {countdownActive ? (
+                <div className="countdown-container">
+                  <p>Recording will start in {timer} seconds...</p>
+                  <button className="skip-button" onClick={skipCountdown}>
+                    Start Answering Now
+                  </button>
+                </div>
+              ) : (
+                <div className="recording-controls">
+                  {isRecording ? (
+                    <button className="stop-button" onClick={stopListening}>
+                      Stop Recording
                     </button>
-                  </div>
-                ) : (
-                  <div className="recording-controls">
-                    <div className="record-buttons">
-                      <button
-                        className={`record-button ${isRecording ? "disabled" : ""}`}
-                        onClick={startListening}
-                        disabled={isRecording}
-                      >
-                        Start Recording
-                      </button>
-                      <button
-                        className={`stop-button ${!isRecording ? "disabled" : ""}`}
-                        onClick={stopListening}
-                        disabled={!isRecording}
-                      >
-                        Stop Recording
-                      </button>
-                    </div>
-                    <button
-                      className={`next-button ${isRecording ? "disabled" : ""}`}
+                  ) : (
+                    <button 
+                      className={`${isLastQuestion ? 'finish-button' : 'next-button'} ${!hasRecorded && "disabled"}`}
                       onClick={handleNextQuestion}
-                      disabled={isRecording}
+                      disabled={!hasRecorded}
                     >
-                      {currentQuestion >= 2 ? "Finish Interview" : "Next Question"}
+                      {isLastQuestion ? "Finish Interview" : "Next Question"}
                     </button>
-                  </div>
                 )}
               </div>
             )}
-          </div>
-
-          <div className="status-indicator">
-            <p className="recording-timer">
-              <strong>Recording Time:</strong> {formatTime(answerTime)}
-            </p>
-          </div>
+          </>
+          )}
         </div>
       </div>
     </div>
