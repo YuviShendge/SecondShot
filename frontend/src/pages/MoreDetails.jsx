@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../components/MoreDetails.css";
+import axios from "axios";
 
 const MoreDetails = () => {
   const [selfEvaluation, setSelfEvaluation] = useState(localStorage.getItem("selfEvaluation") || "");
