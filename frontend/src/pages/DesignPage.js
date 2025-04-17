@@ -9,17 +9,17 @@ const designHeight = 1080;
 
 const DesignPage = () => {
   const [scale, setScale] = useState(1);
-  const { isLoading, error, isAuthenticated } = useAuth0();
+  const { isLoading, error, isAuthenticated, loginWithRedirect } = useAuth0();
   const navigate = useNavigate();
 
-  // Automatically navigate to the Home page if authenticated
+  // Navigate to the Home page if authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/peripherals");
     }
   }, [isAuthenticated, navigate]);
 
-  // Calculate scale so the design fits within the viewport without scrollbars
+  // Scale design to fit viewport
   useEffect(() => {
     function updateScale() {
       const scaleX = window.innerWidth / designWidth;
@@ -40,7 +40,6 @@ const DesignPage = () => {
         background: "white",
       }}
     >
-      {/* Scaled container anchored at top-left */}
       <div
         style={{
           width: designWidth,
@@ -97,22 +96,26 @@ const DesignPage = () => {
           }}
         >
           <p><strong>Instructions</strong></p>
-
           <p>Log in or create an account to get started.</p>
-
           <p>Check your camera and microphone on the peripherals page.</p>
-
           <p>Select your questions or let us pick them for you.</p>
+          <p>
+            Start the interview — you'll answer 3 questions one at a time.<br />
+            You get 20 seconds to prepare before recording each answer.
+          </p>
+          <p>
+            After finishing, review your responses, add a self-evaluation,<br />
+            and email it to a mentor for feedback.
+          </p>
+        </div>
 
-          <p>Start the interview — you'll answer 3 questions one at a time.<br />
-          You get 20 seconds to prepare before recording each answer.</p>
-
-          <p>After finishing, review your responses, add a self-evaluation,<br />
-          and email it to a mentor for feedback.</p>
-          </div>
-
-        {/* "Get Started" Button */}
-        <div
+        {/* Get Started Button */}
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            loginWithRedirect();
+          }}
           style={{
             width: 369,
             height: 150,
@@ -121,27 +124,27 @@ const DesignPage = () => {
             position: "absolute",
             background: "#D9D9D9",
             borderRadius: 25,
-          }}
-        />
-        <div
-          style={{
-            width: 244,
-            height: 64,
-            left: 1316,
-            top: 394,
-            position: "absolute",
-            textAlign: "center",
-            color: "black",
-            fontSize: 40,
-            fontFamily: "Inter",
-            fontWeight: "600",
-            wordWrap: "break-word",
+            textDecoration: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
           }}
         >
-          Get Started
-        </div>
+          <span
+            style={{
+              textAlign: "center",
+              color: "black",
+              fontSize: 40,
+              fontFamily: "Inter",
+              fontWeight: "600",
+            }}
+          >
+            Get Started
+          </span>
+        </a>
 
-        {/* Divider Line s */}
+        {/* Divider Lines */}
         <div
           style={{
             width: 442,
@@ -173,7 +176,7 @@ const DesignPage = () => {
           }}
         />
 
-        {/* "Sign In" area at original coordinates */}
+        {/* Sign In */}
         <div
           style={{
             width: 175,
@@ -194,7 +197,7 @@ const DesignPage = () => {
           {!error && !isLoading && <LoginButton />}
         </div>
 
-        {/* "Contact Us" area at original coordinates */}
+        {/* Contact Us */}
         <div
           style={{
             left: 1365,
@@ -209,7 +212,6 @@ const DesignPage = () => {
           }}
         >
           <LogoutButton />
-          {/* Contact Us Button (Opens Gmail in New Tab) */}
           <a
             href="https://mail.google.com/mail/?view=cm&fs=1&to=Interviewmock@gmail.com"
             target="_blank"
