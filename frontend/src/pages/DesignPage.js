@@ -64,7 +64,10 @@ const DesignPage = () => {
         />
 
         {/* SVG Logo */}
-        <div data-svg-wrapper style={{ left: 325, top: 71, position: "absolute" }}>
+        <div
+          data-svg-wrapper
+          style={{ left: 325, top: 71, position: "absolute" }}
+        >
           <svg
             width="294"
             height="416"
@@ -89,22 +92,26 @@ const DesignPage = () => {
             position: "absolute",
             textAlign: "center",
             color: "black",
-            fontSize: 26,
-            fontFamily: "Inter",
-            fontWeight: "600",
+            fontSize: 25,
+            fontFamily: "Arial",
+            fontWeight: "400",
             wordWrap: "break-word",
           }}
         >
-          <p><strong>Instructions</strong></p>
+          <p>
+            <strong>Instructions</strong>
+          </p>
           <p>Log in or create an account to get started.</p>
           <p>Check your camera and microphone on the peripherals page.</p>
           <p>Select your questions or let us pick them for you.</p>
           <p>
-            Start the interview — you'll answer 3 questions one at a time.<br />
+            Start the interview — you'll answer 3 questions one at a time.
+            <br />
             You get 20 seconds to prepare before recording each answer.
           </p>
           <p>
-            After finishing, review your responses, add a self-evaluation,<br />
+            After finishing, review your responses, add a self-evaluation,
+            <br />
             and email it to a mentor for feedback.
           </p>
         </div>
@@ -136,7 +143,7 @@ const DesignPage = () => {
               textAlign: "center",
               color: "black",
               fontSize: 40,
-              fontFamily: "Inter",
+              fontFamily: "Arial",
               fontWeight: "600",
             }}
           >
@@ -187,7 +194,7 @@ const DesignPage = () => {
             textAlign: "center",
             color: "black",
             fontSize: 32,
-            fontFamily: "Inter",
+            fontFamily: "Arial",
             fontWeight: "600",
             wordWrap: "break-word",
           }}
@@ -206,7 +213,7 @@ const DesignPage = () => {
             textAlign: "center",
             color: "black",
             fontSize: 32,
-            fontFamily: "Inter",
+            fontFamily: "Arial",
             fontWeight: "600",
             wordWrap: "break-word",
           }}
@@ -216,7 +223,12 @@ const DesignPage = () => {
             href="https://mail.google.com/mail/?view=cm&fs=1&to=Interviewmock@gmail.com"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ marginLeft: "10px", color: "black", textDecoration: "none", cursor: "pointer" }}
+            style={{
+              marginLeft: "10px",
+              color: "black",
+              textDecoration: "none",
+              cursor: "pointer",
+            }}
           >
             Contact Us
           </a>
