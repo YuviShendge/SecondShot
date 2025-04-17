@@ -6,9 +6,9 @@ const MoreDetails = () => {
   const [rating, setRating] = useState(parseInt(localStorage.getItem("rating")) || 0);
   const [mentorEmail, setMentorEmail] = useState("");
   const [message, setMessage] = useState("");
-
   const [recordings, setRecordings] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [includeVideoLinks, setIncludeVideoLinks] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("selfEvaluation", selfEvaluation);
@@ -24,15 +24,42 @@ const MoreDetails = () => {
 
   const handleRating = (stars) => setRating(stars);
 
+  const handleSendEval = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/feedback", {
+        message: selfEvaluation,
+      });
+      alert(res.data.message || "Evaluation saved successfully!");
+    } catch (err) {
+      console.error("Error saving evaluation:", err);
+      alert("Error saving evaluation. Please try again.");
+    }
+  };
+
   const handleSend = () => {
     if (!mentorEmail || !message) {
       alert("Please enter the mentor's email and a message before sending.");
       return;
     }
 
+    let videoSection = "";
+    if (includeVideoLinks) {
+      const formattedLinks = recordings
+        .map((rec, index) => {
+          if (rec.fileId) {
+            return `Question ${index + 1}: http://localhost:5000/video/${rec.fileId}`;
+          }
+          return null;
+        })
+        .filter(Boolean)
+        .join("\n");
+
+      videoSection = `\n\nVideo Links:\n${formattedLinks}`;
+    }
+
     const subject = encodeURIComponent("Interview Evaluation");
     const body = encodeURIComponent(
-      `Hello,\n\nHere is my self-evaluation:\n\n"${selfEvaluation}"\n\nRating: ${rating} Stars\n\nMessage:\n${message}\n\nBest Regards`
+      `Hello,\n\nHere is my self-evaluation:\n\n"${selfEvaluation}"\n\nRating: ${rating} Stars\n\nMessage:\n${message}${videoSection}\n\nBest regards`
     );
 
     const gmailURL = `https://mail.google.com/mail/?view=cm&fs=1&to=${mentorEmail}&su=${subject}&body=${body}`;

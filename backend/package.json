@@ -21,7 +21,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.6",
     "morgan": "^1.10.0",
+<<<<<<< HEAD
     "multer": "^1.4.5-lts.2",
+=======
+    "nodemailer": "^6.10.1",
+>>>>>>> origin/main
     "ws": "^8.18.1"
   },
   "devDependencies": {

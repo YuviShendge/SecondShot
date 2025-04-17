@@ -1,7 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../components/InterviewPage.css";
 import axios from "axios";
+<<<<<<< HEAD
 import { useNavigate, useLocation } from "react-router-dom";
+=======
+import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
+>>>>>>> origin/main
 
 const InterviewPage = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -11,9 +16,14 @@ const InterviewPage = () => {
   const [countdownActive, setCountdownActive] = useState(false);
   const [interviewStarted, setInterviewStarted] = useState(false);
   const [interviewFinished, setInterviewFinished] = useState(false);
+<<<<<<< HEAD
   const [answerTime, setAnswerTime] = useState(0); // Track time spent answering
   const [answerTimerId, setAnswerTimerId] = useState(null); // Store timer ID
   const [hasRecorded, setHasRecorded] = useState(false);
+=======
+  const [answerTime, setAnswerTime] = useState(0);
+  const [answerTimerId, setAnswerTimerId] = useState(null);
+>>>>>>> origin/main
 
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -22,10 +32,21 @@ const InterviewPage = () => {
   const streamRef = useRef(null);
 
   const navigate = useNavigate();
+<<<<<<< HEAD
   const location = useLocation();
   const questions = location.state?.selectedQuestions || [];
   const isLastQuestion = currentQuestion === questions.length - 1;
   
+=======
+  const { user } = useAuth0();
+
+  const questions = [
+    "Tell me about yourself and your background.",
+    "What are your strengths and weaknesses?",
+    "Where do you see yourself in five years?",
+  ];
+
+>>>>>>> origin/main
   useEffect(() => {
     let timeoutId;
     if (countdownActive && timer > 0) {
@@ -57,41 +78,43 @@ const InterviewPage = () => {
 
     return () => {
       if (streamRef.current) {
+<<<<<<< HEAD
         streamRef.current.getTracks().forEach(track => track.stop());
+=======
+        streamRef.current.getTracks().forEach((track) => track.stop());
+>>>>>>> origin/main
       }
     };
   }, []);
 
+<<<<<<< HEAD
   // Effect to manage the answer timer
+=======
+>>>>>>> origin/main
   useEffect(() => {
     if (isRecording) {
-      // Start timer when recording begins
       const timerId = setInterval(() => {
-        setAnswerTime(prev => prev + 1);
+        setAnswerTime((prev) => prev + 1);
       }, 1000);
       setAnswerTimerId(timerId);
     } else {
-      // Clear timer when recording stops
       if (answerTimerId) {
         clearInterval(answerTimerId);
         setAnswerTimerId(null);
       }
     }
 
-    // Clean up on unmount
     return () => {
-      if (answerTimerId) {
-        clearInterval(answerTimerId);
-      }
+      if (answerTimerId) clearInterval(answerTimerId);
     };
   }, [isRecording]);
 
-  // Format the time for display (mm:ss)
   const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
+    const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const secs = (seconds % 60).toString().padStart(2, "0");
     return `${mins}:${secs}`;
   };
+
   const startCountdown = () => {
     setTimer(20);
     setCountdownActive(true);
@@ -136,6 +159,7 @@ const InterviewPage = () => {
       mediaRecorderRef.current.onstop = async () => {
         const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
         const url = URL.createObjectURL(blob);
+<<<<<<< HEAD
   
         recordingsRef.current.push({
           question: questions[currentQuestion],
@@ -159,8 +183,37 @@ const InterviewPage = () => {
           if (response.data.success) {
             console.log("File uploaded:", response.data);
           }
+=======
+
+        // Prepare upload
+        const formData = new FormData();
+        formData.append("video", blob, `question_${currentQuestion + 1}.webm`);
+        formData.append("question", questions[currentQuestion]);
+        formData.append("userId", user?.sub || "anonymous");
+
+        try {
+          const res = await axios.post("http://localhost:5000/upload-video", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+
+          recordingsRef.current.push({
+            question: questions[currentQuestion],
+            url,
+            blob,
+            fileId: res.data.fileId, // ✅ store fileId here
+          });
+
+          // Update localStorage
+          const recordingsToStore = recordingsRef.current.map((rec) => ({
+            question: rec.question,
+            url: rec.url,
+            fileId: rec.fileId,
+          }));
+          localStorage.setItem("interviewRecordings", JSON.stringify(recordingsToStore));
+>>>>>>> origin/main
         } catch (err) {
           console.error("Upload error:", err);
+          alert("Upload failed. Please try again.");
         }
       };
     }
@@ -170,11 +223,16 @@ const InterviewPage = () => {
 
   const handleNextQuestion = () => {
     stopListening();
+
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       startCountdown();
     } else {
       setInterviewFinished(true);
+<<<<<<< HEAD
+=======
+      alert("Interview completed and videos uploaded.");
+>>>>>>> origin/main
       navigate("/more-details");
     }
   };
@@ -242,11 +300,25 @@ const InterviewPage = () => {
                     >
                       {isLastQuestion ? "Finish Interview" : "Next Question"}
                     </button>
+<<<<<<< HEAD
                   )}
                 </div>
               )}
             </>
           )}
+=======
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="status-indicator">
+            <p className="recording-timer">
+              <strong>Recording Time:</strong> {formatTime(answerTime)}
+            </p>
+          </div>
+>>>>>>> origin/main
         </div>
       </div>
     </div>
